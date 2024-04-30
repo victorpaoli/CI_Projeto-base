@@ -1,15 +1,23 @@
-name: Go
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+        default: 'main'
 
 jobs:
 
-  test:
+  go:
+    name: Go
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.branch == 'main' }}
     strategy:
       matrix:
         go_version: ['1.18', '1.17']
@@ -35,10 +43,10 @@ jobs:
 
       - name: Test
         run: go test -v main_test.go 
-        
 
   build:
-    needs: test
+    name: Build
+    needs: go
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +54,8 @@ jobs:
         run: go build -v main.go
 
   docker:
-    needs: build
+    name: Docker
+    needs: go
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
