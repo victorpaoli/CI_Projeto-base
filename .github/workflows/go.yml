@@ -47,4 +47,10 @@ jobs:
 
   docker:
     needs: build
-    uses: ./.github/workflows/Docker.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker image
+        run: docker build -t my-image .
+      - name: Push Docker image
+        run: docker push my-image
